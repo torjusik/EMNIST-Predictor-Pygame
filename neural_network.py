@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from torchvision.models import ResNet50_Weights, resnet50
 
 class Neural_network(nn.Module):
-    def __init__(self, input_size, hidden_size1, hidden_size2, num_classes):
+    def __init__(self):
         super(Neural_network, self).__init__()
         self.model = resnet50(weights=ResNet50_Weights.DEFAULT)
         self.model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
