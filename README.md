@@ -34,7 +34,6 @@ After training a model and saving it, you can run drawing.py to test it out.
 - neural_network.py: Defines the architecture of the neural network used for character recognition.
 
 ## Acknowledgments
-- EMNIST Dataset: Provided by NIST, offering a comprehensive set of handwritten character data.
-Cohen, G., Afshar, S., Tapson, J., & van Schaik, A. (2017). EMNIST: an extension of MNIST to handwritten letters. Retrieved from http://arxiv.org/abs/1702.05373
+- Cohen, G., Afshar, S., Tapson, J., & van Schaik, A. (2017). EMNIST: an extension of MNIST to handwritten letters. Retrieved from http://arxiv.org/abs/1702.05373
 - Pygame: A set of Python modules designed for writing video games, used here for creating the interactive interface.
 This project combines machine learning and interactive graphics to provide a hands-on experience with handwritten character recognition.
