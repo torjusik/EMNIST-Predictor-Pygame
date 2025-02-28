@@ -21,7 +21,7 @@ class Agent():
         self.hidden_size = 200
         self.num_classes = 62
         self.batch_size = 64
-        self.model = Neural_network(self.input_size, self.hidden_size, self.hidden_size, self.num_classes).to(self.device)
+        self.model = Neural_network().to(self.device)
         self.model_path = "./model/model.pt"
         self.training_transform = transforms.Compose([
                 transforms.ToImage(), 
