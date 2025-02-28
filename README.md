@@ -1,6 +1,6 @@
 # EMNIST Predictor with Pygame
 This project utilizes the EMNIST dataset to create a handwritten character recognition system with a graphical interface built using Pygame. Users can draw characters on the screen, and the system will predict the corresponding letter or digit.
-
+![Pygame Predictor](https://github.com/torjusik/EMNIST-Predictor-Pygame/blob/main/screenshot.png)
 ### Features
 - **Handwritten Character Recognition**: Supports recognition of both letters and digits using the EMNIST dataset.
 - **Interactive Drawing Interface**: Draw characters directly on the screen with real-time prediction feedback.
