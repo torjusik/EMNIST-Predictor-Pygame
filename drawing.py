@@ -95,7 +95,7 @@ class Game():
             self.draw_downscaled_drawing((self.grid_width_offset * 3 + 400, self.grid_height_offset))
             self.screen.blit(self.drawing_surface, (self.grid_width_offset, self.grid_height_offset))
             #draw text of the predicted number
-            self.blit_text(str(self.predicted_number), (150, 150), self.screen, 150)
+            self.blit_text(str(self.predicted_number), (120, 120), self.screen, 150)
             #draw all outputs
             output_offset = np.array((0, 70))
             pos = np.array((self.width - 100, 100))
@@ -106,6 +106,10 @@ class Game():
                     if 0 <= pos[1] + offset[1] < self.height:
                         self.blit_text(f"{item[1]}: {item[0]:.2f}%", pos + offset, self.screen, 30)
                 i += 1
+                
+            #draw informative text about the windows:
+            self.blit_text("Drawing Window:", (self.grid_width_offset + 120, self.grid_height_offset - 40), self.screen, 30)
+            self.blit_text("What the model sees:", (self.grid_width_offset * 3 + 550, self.grid_height_offset - 40), self.screen, 30)
         elif self.show_samples:
             self.screen.blit(self.sample_surface, (0, 0))
         pg.display.flip()
