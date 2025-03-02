@@ -21,6 +21,16 @@ class Agent():
         self.model = Neural_network().to(self.device)
         self.model_path = "./model/model.pt"
         
+        numbers = "abcdefghijklmnopqrstuvwxyz"
+        numbers_caps = numbers.upper()
+        numbers_list = [*numbers]
+        numbers_caps_list = [*numbers_caps]
+        self.dataset_classes = []
+        for i in range(10):
+            self.dataset_classes.append(i)
+        self.dataset_classes += numbers_caps_list
+        self.dataset_classes += numbers_list
+        
         if os.path.exists(self.model_path):
             Model_handler.load(self.model, self.model_path)
             
@@ -36,18 +46,8 @@ class Agent():
         
         self.train_dataset = torchvision.datasets.EMNIST(root="./data", train=True, split="byclass",
                                                         transform=self.training_transform, download=True)
-        
         self.test_dataset = torchvision.datasets.EMNIST(root="./data", train=False, split="byclass",
                                                         transform=self.test_transform)
-        numbers = "abcdefghijklmnopqrstuvwxyz"
-        numbers_caps = numbers.upper()
-        numbers_list = [*numbers]
-        numbers_caps_list = [*numbers_caps]
-        self.dataset_classes = []
-        for i in range(10):
-            self.dataset_classes.append(i)
-        self.dataset_classes += numbers_caps_list
-        self.dataset_classes += numbers_list
 
         self.train_loader = torch.utils.data.DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, shuffle=False)
