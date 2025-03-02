@@ -25,8 +25,7 @@ class Game():
         self.framerate = 0
         self.agent = Agent()
         self.outputs = []
-        self.probability_array = np.empty(62, dtype=tuple)
-        print(self.probability_array.dtype)
+        self.probability_array = np.empty(62, dtype=tuple) # 62 is number of classes
             
     def start(self):
         self.screen=pg.display.set_mode((0, 0), FULLSCREEN)
