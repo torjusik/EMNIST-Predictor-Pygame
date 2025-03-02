@@ -16,13 +16,15 @@ class Agent():
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         torch.backends.cudnn.benchmark = True
-        self.writer = SummaryWriter(log_dir='logs')
-        self.input_size = 784 #28x28
-        self.hidden_size = 200
-        self.num_classes = 62
+        self.writer = SummaryWriter(log_dir='./logs')
         self.batch_size = 64
         self.model = Neural_network().to(self.device)
         self.model_path = "./model/model.pt"
+        
+        if os.path.exists(self.model_path):
+            Model_handler.load(self.model, self.model_path)
+            
+    def load_dataset(self):
         self.training_transform = transforms.Compose([
                 transforms.ToImage(), 
                 transforms.ToDtype(torch.float32, scale=True),
@@ -49,69 +51,70 @@ class Agent():
 
         self.train_loader = torch.utils.data.DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, shuffle=True)
         self.test_loader = torch.utils.data.DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, shuffle=False)
-        if os.path.exists(self.model_path):
-            Model_handler.load(self.model, self.model_path)
 
-            if False:
-                mislabeled_images = []
-                true_labels = []
-                predicted_labels = []
-                with torch.no_grad():
-                    n_correct = 0
-                    n_samples = 0
-                    for images_cpu, labels_cpu in self.test_loader:
-                        images = images_cpu.to(self.device)
-                        labels_gpu = labels_cpu.to(self.device)
-                        outputs = self.model(images)
-                        
-                        _, predictions = torch.max(outputs, 1)
-                        n_samples += labels_gpu.shape[0]
-                        n_correct += (predictions == labels_gpu).sum().item()
-                        for i in range(len(predictions)):
-                            if predictions[i] != labels_gpu[i]:
-                                mislabeled_images.append(images_cpu[i])
-                                true_labels.append(self.dataset_classes[labels_gpu[i].item()])
-                                predicted_labels.append(self.dataset_classes[predictions[i].item()])
-                        if n_samples > 10000:
-                            break
-              
-                acc = 100 * n_correct / n_samples
-                print(f"accuracy: {acc}%")
-                num_images = len(mislabeled_images)
-                if num_images == 0:
-                    print("No mislabeled images to display.")
-                    return
-                max_images_per_fig = 20
-                num_cols = 5
-                images_per_fig = min(max_images_per_fig, num_images)
-                num_rows = (images_per_fig + num_cols - 1) // num_cols
+    def show_mislabeled_images(self):
+        self.load_dataset()
+        mislabeled_images = []
+        true_labels = []
+        predicted_labels = []
+        with torch.no_grad():
+            n_correct = 0
+            n_samples = 0
+            for images_cpu, labels_cpu in self.test_loader:
+                images = images_cpu.to(self.device)
+                labels_gpu = labels_cpu.to(self.device)
+                outputs = self.model(images)
                 
-                # Display the mislabeled images in multiple figures if necessary
-                for start_idx in range(0, num_images, images_per_fig):
-                    end_idx = min(start_idx + images_per_fig, num_images)
-                    fig = plt.figure(figsize=(15, 3 * num_rows))
-                    for i in range(start_idx, end_idx):
-                        plt.subplot(num_rows, num_cols, i - start_idx + 1)
-                        self.imshow(mislabeled_images[i])
-                        plt.title(f'True: {true_labels[i]}\nPred: {predicted_labels[i]}')
-                        plt.axis('off')
-                    plt.tight_layout()
-                    plt.show()
-                    break # to only show one plot
+                _, predictions = torch.max(outputs, 1)
+                n_samples += labels_gpu.shape[0]
+                n_correct += (predictions == labels_gpu).sum().item()
+                for i in range(len(predictions)):
+                    if predictions[i] != labels_gpu[i]:
+                        mislabeled_images.append(images_cpu[i])
+                        true_labels.append(self.dataset_classes[labels_gpu[i].item()])
+                        predicted_labels.append(self.dataset_classes[predictions[i].item()])
+                if n_samples > 10000:
+                    break
+        
+        acc = 100 * n_correct / n_samples
+        print(f"accuracy: {acc}%")
+        num_images = len(mislabeled_images)
+        if num_images == 0:
+            print("No mislabeled images to display.")
+            return
+        max_images_per_fig = 20
+        num_cols = 5
+        images_per_fig = min(max_images_per_fig, num_images)
+        num_rows = (images_per_fig + num_cols - 1) // num_cols
+        
+        # Display the mislabeled images in multiple figures if necessary
+        for start_idx in range(0, num_images, images_per_fig):
+            end_idx = min(start_idx + images_per_fig, num_images)
+            fig = plt.figure(figsize=(15, 3 * num_rows))
+            for i in range(start_idx, end_idx):
+                plt.subplot(num_rows, num_cols, i - start_idx + 1)
+                self.imshow(mislabeled_images[i])
+                plt.title(f'True: {true_labels[i]}\nPred: {predicted_labels[i]}')
+                plt.axis('off')
+            plt.tight_layout()
+            plt.show()
+            break # to only show one plot
                 
     def start_training(self):
+        
+        self.load_dataset()
         self.num_epochs = 1
         self.learning_rate = 0.001
 
-        self.train_loader = torch.utils.data.DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, shuffle=True)
-        self.test_loader = torch.utils.data.DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, shuffle=False)
         self.examples = iter(self.train_loader)
         self.samples, self.labels = next(self.examples)
-        #plotting transformed data
-        #for i in range(10):
-            #plt.subplot(2, 5, i+1)
-            #plt.imshow(self.samples[i][0], cmap="gray")
-        #plt.show()
+        '''
+        plotting transformed data
+        for i in range(10):
+            plt.subplot(2, 5, i+1)
+            plt.imshow(self.samples[i][0], cmap="gray")
+        plt.show()
+        '''
         
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -165,8 +168,8 @@ class Agent():
 
         
     def imshow(self, img, title=None):
-        npimg = img.numpy()
-        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        np_img = img.numpy()
+        plt.imshow(np.transpose(np_img, (1, 2, 0)))
         if title:
             plt.title(title)
         
@@ -180,7 +183,6 @@ class AddNoise(object):
         rand_tensor = torch.randn(tensor.size(), device=self.device)
         rand_tensor = rand_tensor * self.std + self.mean
         total = tensor + rand_tensor
-        #total = torch.softmax(total, 1, torch.float32)
         return total
     
     def __repr__(self):
@@ -188,6 +190,5 @@ class AddNoise(object):
 
 if __name__ == "__main__":
     agent = Agent()
-    #if not os.path.exists(agent.model_path):
     agent.start_training()
     
